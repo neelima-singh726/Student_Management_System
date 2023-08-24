@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password</title>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            width: 400px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          const form = document.querySelector("form");
+          form.addEventListener("submit", function (event) {
+              event.preventDefault();
+
+              // Get the body input value
+              const body = document.getElementById("body").value;
+              const subject = document.getElementById("subject").value;
+
+              // Send a POST request to the Django server to handle body sending
+              fetch("/broadcast", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                      "X-CSRFToken": getCSRFToken(),  // Replace with your CSRF token retrieval logic
+                  },
+                  body: JSON.stringify({ body: body,subject : subject }),
+              })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          alert("Email broadcasted successfully!");
+                      } else {
+                          alert("Failed to broadcast Email. Please try again later.");
+                      }
+                  })
+                  .catch(error => {
+                      console.error("Error sending body:", error);
+                  });
+          });
+      });
+
+      function getCSRFToken() {
+          const cookies = document.cookie.split("; ");
+          for (const cookie of cookies) {
+              const [name, value] = cookie.split("=");
+              if (name === "csrftoken") {
+                  return decodeURIComponent(value);
+              }
+          }
+          return "";
+      }
+  </script>
+</head>
+
+<body>
+    <div class="center">
+        <div class="form-container">
+            <h2>Broadcast Email</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="subject">Subject:</label>
+                    <input type="text" id="subject" name="subject">
+                </div>
+                <div class="form-group">
+                    <label for="body">Body:</label>
+                    <textarea id="body" name="body" rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Broadcast Email</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

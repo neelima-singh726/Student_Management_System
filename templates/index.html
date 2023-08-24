@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width ,initial-scale=1.0">
+  <title>Student Management System</title>
+  {%load static%}
+  <link rel="stylesheet" href="{% static 'style.css'%}">
+
+</head>
+
+<body>
+   
+  <div class = "wrapper-main">
+  <div class="login-container">
+    <div class="box1">
+      <p>Welcome to SMS</p><p> sign up to continue</p>
+    </div>
+    <div class="boxs2">
+      <form method = "post" action = "/login" class="login-form">
+        {% csrf_token %}
+        <label for="username">Username*</label>
+        <input type="text" placeholder="Enter Username" name="username" required>
+        <label for="password">Password*</label>
+        <input type="password" placeholder="Enter Password" id="password" name="password" required>
+        <button type="submit">Login</button>
+
+        <a href="/register">Register as new User</a><br><br>
+        <a href="/forgot-password">Forgot Password</a>
+        
+      </form>
+    </div>
+  </div>
+   
+  {% for message in messages %}
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 28px; background-color: lightgreen;">
+  <div class="container-fluid p-0" style="margin-top: 0;">
+    <div class="alert {{ message.tags }} alert-dismissible" role="alert" style="color: black;">
+      <button style="background-color: red" type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="hideMessage(this)">
+        <span aria-hidden="True">&times;</span>
+      </button>
+      {{ message }}
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<script>
+function hideMessage(button) {
+  var messageContainer = button.closest('.alert');
+  var greenStripe = messageContainer.closest('div[style*="background-color: lightgreen;"]');
+  
+  messageContainer.style.display = 'none';
+  greenStripe.style.display = 'none';
+}
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {%load static%}
+  <link rel="stylesheet" href="{% static 'styles.css'%}"> 
+
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  
+  <title>student-details</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+
+    $(document).ready(function () {
+      $("#dob").datepicker({
+          dateFormat: "yyyy-mm-dd", // Format as YYYY-MM-DD
+          changeMonth: true,
+          changeYear: true,
+           // Allow selection from 100 years ago to the current year
+      });
+     
+    });
+
+    function enableEdit(inputId) {
+      event.preventDefault();
+      var inputElement = document.getElementById(inputId);
+      inputElement.removeAttribute('readonly');
+  }
+  function enableEdit_dob(inputId) {
+    event.preventDefault();
+    var inputElement = document.getElementById(inputId);
+    inputElement.removeAttribute("disabled");
+}
+
+    window.onload = function() {
+        
+
+        const form = document.querySelector('.form1');
+        const editButtons = document.querySelectorAll('.button1');
+        
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            // Perform additional validations
+            const phoneNoField = formData.get('phone');
+            const dobField = formData.get('dob');
+
+            // Phone number validation: +91 followed by 10 digits
+            const phoneRegex = /^\+91\d{10}$/;
+            if (!phoneRegex.test(phoneNoField)) {
+                alert('Phone number is not valid. Please use the format +919xxxxxxxxx.');
+                return;
+            }
+
+            // Date of birth validation: Check if year is not the current year
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const selectedDate = new Date(dobField);
+            if (selectedDate.getFullYear() >= currentYear ) {
+                alert('Date of birth should not be in the current year or greater than current year');
+                return;
+            }
+
+            document.getElementById('dob').removeAttribute('disabled');
+                    
+            // Submit the form data if validations pass
+            fetch('/update-student-details/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Student details updated successfully!');
+                } else {
+                    alert('Failed to update student details. Please try again later.');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating student details:', error);
+            });
+        });
+        
+    };
+  </script>
+
+
+</head>
+<body class = "body1">
+  <header>
+    <h1>Welcome to SMS </h1>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="/">Home</a></li>
+    </ul>
+  </nav>
+  <main>
+    <form class = "form1">
+        {% csrf_token %}
+      <label class="label1" for="first_name">First Name</label>
+      <input class="input1" type="text" id="first_name" name="first_name" value="{{ student.first_name }}" required readonly>
+      <button class="button1" onclick="enableEdit('first_name')">Edit</button>
+
+
+      <label class="label1" for="last_name">Last Name</label>
+      <input class ="input1" type="text" id="last_name" name="last_name" value="{{ student.last_name }}" required readonly>
+      <button class = "button1" onclick="enableEdit('last_name')">Edit</button>
+
+      <label class="label1" for="email">Email</label>
+      <input class ="input1" type="email" id="email" name="email" value="{{ student.email }}" required readonly>
+      <button class = "button1" onclick="enableEdit('email')">Edit</button>
+
+
+      <label class="label1" for="phoneNo">Phone Number</label>
+      <input class ="input1" type="tel" id="phoneNo" name="phone" value="{{ student.phone }}" required readonly>
+      <button class = "button1" onclick="enableEdit('phoneNo')">Edit</button>
+
+      <label class="label1" for="dob">Date of Birth</label>
+      <input class ="input1" type="text" id="dob" name="dob"  value="{{ dob_formatted }}" required disabled>
+      <button class = "button1"  onclick="enableEdit_dob('dob')">Edit</button>
+
+
+      <button  class = "button1" type="submit">Save</button>
+    </form>
+  </main>
+  <footer>
+    <p>&copy; neelimaSingh</p>
+  </footer>
+</body>
+</html>
